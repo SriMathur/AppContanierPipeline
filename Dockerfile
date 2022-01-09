@@ -10,17 +10,15 @@ EXPOSE 80
 FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
 WORKDIR /src
 
-COPY ["AppMigrateCore/AppMigrateCore.csproj", "AppMigrateCore/"]
-RUN dotnet restore "AppMigrateCore/AppMigrateCore.csproj"
-
+COPY AppMigrateCore.csproj
+RUN dotnet restore AppMigrateCore.csproj
 COPY . .
-WORKDIR "/src/AppMigrateCore"
-RUN dotnet build "/src/AppMigrateCore/AppMigrateCore.csproj" -c Release -o /app/build
+RUN dotnet build AppMigrateCore.csproj -c Release -o /app
 
 FROM build AS publish
-RUN dotnet publish "/src/AppMigrateCore/AppMigrateCore.csproj" -c Release -o /app/publish
+RUN dotnet publish AppMigrateCore.csproj -c Release -o /app
 
 FROM base AS final
 WORKDIR /app
-COPY --from=publish /app/publish .
+COPY --from=publish /app .
 ENTRYPOINT ["dotnet", "AppMigrateCore.dll"]
